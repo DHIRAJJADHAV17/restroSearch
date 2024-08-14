@@ -10,7 +10,7 @@ const getRestaurant = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "restaurant not found" });
     }
 
-    res.json(restaurant);
+    res.status(200).json(restaurant);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "something went wrong" });
@@ -39,7 +39,7 @@ const searchRestaurant = async (req: Request, res: Response) => {
       ],
     });
 
-    res.json(restaurants);
+    res.status(200).json(restaurants);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "An error occurred", error });
