@@ -11,7 +11,10 @@ const createMyRestro = async (req: Request, res: Response) => {
       return res.status(409).json({ message: "user restaurant already exits" });
     }
 
-    const imageUrl = await uploadImage(req.file as Express.Multer.File);
+    // const imageUrl = await uploadImage(req.file as Express.Multer.File);
+    const imageUrl = req.file
+      ? (req.file as Express.MulterS3.File).location
+      : "";
 
     const restaurant = new Restro(req.body);
     restaurant.imageUrl = imageUrl;
@@ -57,12 +60,10 @@ const updateMyRestaurant = async (req: Request, res: Response) => {
     restaurant.cuisines = req.body.cuisines;
     restaurant.menuItems = req.body.menuItems;
 
-    if (req.file) {
-      const imageUrl = await uploadImage(req.file as Express.Multer.File);
-      restaurant.imageUrl = imageUrl;
-    }
-    console.log(restaurant);
-
+    const imageUrl = req.file
+      ? (req.file as Express.MulterS3.File).location
+      : "";
+    restaurant.imageUrl = imageUrl;
     await restaurant.save();
     res.status(200).send(restaurant);
   } catch (error) {

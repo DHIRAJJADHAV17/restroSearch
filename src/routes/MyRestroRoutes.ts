@@ -1,15 +1,58 @@
-import express from "express";
 import MyRestroController from "../controllers/MyRestroController";
 import AccessToken from "../middleware/AccessToken";
-import multer from "multer";
-const router = express.Router();
 
-const storage = multer.memoryStorage();
-const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 5 * 1024 * 1024, //5mb
+import express, { Request, Response, NextFunction } from "express";
+import AWS from "aws-sdk";
+import multer, { FileFilterCallback } from "multer";
+import multerS3 from "multer-s3";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+const router = express.Router();
+const s3 = new S3Client({
+  credentials: {
+    accessKeyId: process.env.ACCESSKEYID as string,
+    secretAccessKey: process.env.SECRETACCESSKEY as string,
   },
+  region: process.env.REGION as string,
+});
+// const storage = multer.memoryStorage();
+// const upload = multer({
+//   storage: storage,
+//   limits: {
+//     fileSize: 5 * 1024 * 1024, //5mb
+//   },
+// });
+const upload = multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: "storeimgeons3",
+    acl: "public-read",
+    metadata: (
+      req: Request,
+      file: Express.Multer.File,
+      cb: (error: any, metadata?: any) => void
+    ) => {
+      cb(null, { fieldName: file.fieldname });
+    },
+    key: (
+      req: Request,
+      file: Express.Multer.File,
+      cb: (error: any, key?: string) => void
+    ) => {
+      cb(null, Date.now().toString() + "-" + file.originalname);
+    },
+  }),
+  fileFilter: (
+    req: Request,
+    file: Express.Multer.File,
+    cb: multer.FileFilterCallback
+  ) => {
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only images are allowed"));
+    }
+  },
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB limit
 });
 
 /**

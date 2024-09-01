@@ -8,16 +8,23 @@ import Restro from "./routes/RestroRoute";
 import { v2 as cloudinary } from "cloudinary";
 import swaggerJsDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
+import AWS from "aws-sdk";
+import multer, { FileFilterCallback } from "multer";
+import multerS3 from "multer-s3";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+
+// Configure multer to use S3
 
 mongoose
   .connect(process.env.MONGODB_CONNECTION as string)
   .then(() => console.log("connected to database"));
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// cloudinary.config({
+//   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+//   api_key: process.env.CLOUDINARY_API_KEY,
+//   api_secret: process.env.CLOUDINARY_API_SECRET,
+// });
+
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -33,7 +40,7 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:7000",
+        url: "http://43.205.143.238",
       },
     ],
   },
