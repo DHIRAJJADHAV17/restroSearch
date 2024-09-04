@@ -40,7 +40,10 @@ const options = {
     },
     servers: [
       {
-        url: "http://43.205.143.238",
+        url: "http://localhost:7000",
+      },
+      {
+        url: "http://13.234.21.155",
       },
     ],
   },
